@@ -1,0 +1,27 @@
+# The name of experiment
+name=VLT5
+
+# output=snap/nlvr/$name
+
+PYTHONPATH=$PYTHONPATH:./src \
+python -m torch.distributed.launch \
+    --nproc_per_node=$1 \
+    --master_port 47771 \
+    src/chart_itm.py \
+        --distributed --multiGPU \
+        --train train \
+        --valid val \
+        --test test \
+        --optim adamw \
+        --warmup_ratio 0.1 \
+        --clip_grad_norm 5 \
+        --lr 1e-4 \
+        --epochs 15 \
+        --num_workers 1 \
+        --backbone 't5-base' \
+        --output '/dvmm-filer2/projects/mingyang/semafor/chart_itm/output/exp_twitterCOMMS_statista' \
+        --batch_size 12 \
+        --ocr_tags \
+        --visfeat_type "chart_element" \
+        # --load snap/pretrain/VLT5/Epoch30 \
+        # --max_text_length 40 \
