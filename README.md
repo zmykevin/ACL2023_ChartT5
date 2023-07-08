@@ -1,7 +1,9 @@
 # ChartT5
 [Enhanced Chart Understanding in Vision and Language Task via Cross-modal Pre-training on Plot Table Pairs](https://arxiv.org/abs/2305.18641)
-Mingyang Zhou, Yi R. Fung, Long Chen, Christopher Thomas, Heng Ji, Shih-Fu Chang
-ChartT5 is a vision and language model for chart understanding via pre-training on plot-table pairs. This repository provides the code for pre-training and fine-tuning the ChartQA Downstream tasks. 
+<br/>
+[Mingyang Zhou](https://scholar.google.com/citations?user=hIpaL2wAAAAJ&hl=en), [Yi R. Fung](https://yrf1.github.io/), [Long Chen](https://zjuchenlong.github.io/), [Christopher Thomas](https://people.cs.vt.edu/chris/), [Heng Ji](http://blender.cs.illinois.edu/hengji.html), [Shih-Fu Chang](https://www.ee.columbia.edu/~sfchang/)
+<br/>
+ChartT5 is a vision and language model for chart understanding via pre-training on plot-table pairs. This repository provides the code for pre-training and fine-tuning on the ChartQA Downstream tasks. 
 
 ## Env Set Up
 The main code is built on top of [VL-T5](https://github.com/j-min/VL-T5), follow there env set up instructions. 
