@@ -23,7 +23,7 @@ The data for pre-training and fine-tuning is downloadable via this link:
 
 The pre-trained checkpoints can be downloaded via this link:
 <br/>
-[Pre-trained Checkpoint]()
+[Pre-trained Checkpoint](https://drive.google.com/file/d/1MPps6hMrvVmP_ORjsNeMLd_2YFlhtGPW/view?usp=sharing)
 
 We are still working on preparing the extracted visual features for download. However, you can also extract visual features from the images with the following instructions.
 ```
