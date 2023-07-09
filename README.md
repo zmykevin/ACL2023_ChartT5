@@ -27,7 +27,6 @@ Then run the following command to start the pre-training:
 
 ```
 cd ChartT5
-
 bash scripts/Chartpretrain_VLT5.sh 2
 ```
 
