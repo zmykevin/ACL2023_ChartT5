@@ -17,25 +17,15 @@ python -m torch.distributed.launch \
         --lr 1e-4 \
         --num_workers 1 \
         --clip_grad_norm 1.0 \
-        --losses 'table_lmh' \
+        --losses 'table_lmh,table_lmd' \
         --backbone 't5-base' \
-        --output '/dvmm-filer2/projects/mingyang/semafor/chart_pretrain/output/exp_synthetic_pretrain_ocrcopy_table_lmh_only' \
+        --output '/dvmm-filer2/projects/mingyang/semafor/chart_pretrain/output/exp_pretrain' \
         --epoch 30 \
         --ocr_tags \
         --visfeat_type "chart_element" \
         --ocr_position_encoding "ocr_bbox" \
         --ocr_copy \
-        #--load /dvmm-filer2/projects/mingyang/semafor/chart_pretrain/output/exp_full_pretrain_table_only_tablelmhd/Epoch30 \
-        #--ocr_position_encoding "ocr_bbox" \
-        #--tableMaskRate=0.7 \
-        # --scif_num \
-        #--load /dvmm-filer2/projects/mingyang/semafor/chart_pretrain/output/exp_full_pretrain_table_only_tsptdp/Epoch30 \
-        # --scif_num \
-        #--load /dvmm-filer2/projects/mingyang/semafor/chart_pretrain/output/exp_synthetic_pretrain_table_only_scif_num/Epoch30 \
-        #--batch_size 160 \
-        # --table_mlm
-        # --load /dvmm-filer2/projects/mingyang/semafor/chart_qa/vlt5_checkpoints/snap/pretrain/VLT5/Epoch30 \
-        # --output '/dvmm-filer2/projects/mingyang/semafor/chart_pretrain/output/exp_pretrained_all_objs_dvqa_figqa_plotqa_gtocrs' \
+        
         
 
         

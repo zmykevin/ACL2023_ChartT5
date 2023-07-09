@@ -28,9 +28,7 @@ vg_dir = dataset_dir.joinpath('VG')
 coco_img_dir = coco_dir.joinpath('images/')
 coco_feature_dir = coco_dir.joinpath('features')
 vqa_dir = dataset_dir.joinpath('vqa')
-#chartqa_dir = Path("/dvmm-filer2/projects/mingyang/semafor/chart_qa/ChartQAv1")
-#chartqa_feature_dir = chartqa_dir.joinpath("features")
-chartqa_root = Path("/dvmm-filer2/projects/mingyang/semafor/chart_qa")
+chartqa_root = Path("/dvmm-filer2/projects/mingyang/semafor/chartT5/chart_qa")
 
 exp_symbol = "[EXP]"
 num_symbol = "<num_extra_id_0>"
@@ -103,8 +101,7 @@ def numerify_sent(caption, input_value=True):
             num_values.append((0.0,0.0))
             continue
         scif_w = "{:2e}".format(float_w)
-        # mantissa = float(scif_w.split('e')[0])/(2*MANTISSA_NORM) + 0.5
-        # exponent = float(scif_w.split('e')[1])/(2*EXPONENT_NORM) + 0.5
+
         try:
             mantissa = float(scif_w.split('e')[0])/(2*MANTISSA_NORM) + 0.5
             exponent = float(scif_w.split('e')[1])/(2*EXPONENT_NORM) + 0.5
@@ -114,9 +111,6 @@ def numerify_sent(caption, input_value=True):
             continue
 
         num_values.append((mantissa, exponent))
-        # if input_value:
-        #     new_caption_words.append(w)
-        # else:
         new_caption_words.append(num_symbol)
     new_caption = ' '.join(new_caption_words)
     assert len(new_caption.split(" ")) == len(num_values), "original_caption is: {}, new_caption is: {}".format(caption, new_caption)
@@ -135,8 +129,7 @@ class ChartQAFineTuneDataset(Dataset):
         self.mode = mode
         
         # Loading datasets to data, this part might need to be changed
-        #instances = pd.read_csv(src_folder + "data_fix_origin.csv")
-        instances = pd.read_csv(src_folder + "data_fix_origin.csv")
+        instances = pd.read_csv(src_folder + "data.csv")
         self.instances = instances
         self.inputs = instances["Input"].values
         self.ocrs = instances["OCR"].values
@@ -161,8 +154,6 @@ class ChartQAFineTuneDataset(Dataset):
         self.src_folder = src_folder
 
         self.sources = split.split(',')
-        # if self.verbose:
-        #     print('Data sources: ', self.sources)
         if self.args.table_flat:
             self.full_tables = instances['Full_Table'].values
 
@@ -191,19 +182,12 @@ class ChartQAFineTuneDataset(Dataset):
                 special_tokens_dict = {'additional_special_tokens': additional_special_tokens}
                 num_added_toks = self.tokenizer.add_special_tokens(special_tokens_dict)
 
-        # self.answer_normalizer = ChartQAEvaluator()
         
         self.img_ids_to_source = {}
 
         for source in self.sources:
             for img_id in self.images_indices:
                 self.img_ids_to_source[img_id] = source
-
-            #data_info_dicts.extend(_data_info_dicts)
-        # if self.verbose:
-        #     print(f"Loaded {len(_data_info_dicts)} data from", source)
-
-        # data = data_info_dicts
 
         self.n_gpus = torch.cuda.device_count()
 
@@ -283,7 +267,6 @@ class ChartQAFineTuneDataset(Dataset):
                     f[f'{img_id}/features'].read_direct(feats)
                 except KeyError:
                     print('img_id', img_id)
-                    # print(datum)
                     exit()
 
                 feats = torch.from_numpy(feats)
@@ -294,7 +277,6 @@ class ChartQAFineTuneDataset(Dataset):
                     feats = np.array(f[f'{img_id}/features'])
                 except KeyError:
                     print('img_id', img_id)
-                    # print(datum)
                     exit()
 
                 feats = torch.from_numpy(feats)
@@ -305,12 +287,7 @@ class ChartQAFineTuneDataset(Dataset):
             img_h = f[f'{img_id}/img_h'][()]
             img_w = f[f'{img_id}/img_w'][()]
             boxes = f[f'{img_id}/boxes'][()]  # (x1, y1, x2, y2)
-            # print(boxes)
-            # print(img_w)
-            # print(img_h)
-            # print(img_id)
-            # print(type(boxes))
-            # print(boxes)
+
             boxes[:, (0, 2)] /= img_w
             boxes[:, (1, 3)] /= img_h
             np.testing.assert_array_less(boxes, 1+1e-5)
@@ -326,16 +303,6 @@ class ChartQAFineTuneDataset(Dataset):
                 out_dict['boxes'] = boxes[:max_tensor_size,:]
 
         ###### Text #####
-        # caption = datum['caption']
-        # if 'sent' in datum:
-        #     sent = datum['sent']
-        # elif 'question' in datum:
-        #     sent = datum['question']
-        
-        # if self.args.ocr_copy:
-        #     sent = self.ocr_inputs[idx]
-        # else:
-        #     sent = self.inputs[idx]
         sent = self.inputs[idx]
         
         #Fixed Scifnum Sentence
@@ -363,9 +330,6 @@ class ChartQAFineTuneDataset(Dataset):
                 ocr_tags = c_ocrs
 
             if self.args.ocr_position_encoding == "oscar_style":
-                #Add OCRs to the data_csv
-                #ocr_tags = json.loads(self.ocrs[idx])
-                #ocr_tags = self.ocrs[idx].strip('][').split(',')
                 
                 if self.args.scif_num:
                     ocr_tags = scifnum_ocr(ocr_tags)
@@ -406,8 +370,7 @@ class ChartQAFineTuneDataset(Dataset):
                 if len(ocr_tags) > self.ocr_threds:
                     ocr_tags = ocr_tags[:self.ocr_threds]
                     ocr_locations = ocr_locations[:self.ocr_threds]
-                # print(ocr_tags)
-                # print(ocr_bboxes)
+
                 if not self.args.num_modeling:
                     ocr_ids = []
                     ocr_bboxes = []
@@ -417,8 +380,6 @@ class ChartQAFineTuneDataset(Dataset):
                         ocr_ids += current_ocr_ids
                         ocr_bboxes += [current_ocr_bbox]*len(current_ocr_ids)
                     
-                    # print(ocr_tags)
-                    # print(ocr_ids)
                     assert len(ocr_ids) == len(ocr_bboxes), "length does not match: ocr: {} vs bbox: {}".format(len(ocr_tags), len(ocr_bboxes))
                     #load the ocr ids and ocr_bboxes into a separate feature
                     input_ids = self.tokenizer.encode(f'vqa: {sent}', max_length=30, truncation=True) #Add a short input_ids
@@ -444,12 +405,6 @@ class ChartQAFineTuneDataset(Dataset):
                     assert len(ocr_ids) == len(ocr_exponent), "length does not match: ocr_ids: {} vs ocr_exponent: {}".format(len(ocr_ids), len(ocr_exponent))
                     
                     
-                    # print(ocr_ids)
-                    # if len(ocr_ids) != len(ocr_bboxes):
-                    #     print(ocr_ids)
-                    #     print(ocr_bboxes)
-                    #     print(len(ocr_ids))
-                    #     print(len(ocr_bboxes))
                     assert len(ocr_ids) == len(ocr_bboxes), "length does not match: ocr: {} vs bbox: {}".format(len(ocr_tags), len(ocr_bboxes))
                     
                     #load the ocr ids and ocr_bboxes into a separate feature
@@ -470,10 +425,6 @@ class ChartQAFineTuneDataset(Dataset):
                     input_mantissa.append(0.0)
                     input_exponent.append(0.0)
                     
-                    # print(sent)
-                    # print(input_ids)
-                    # print(input_mantissa)
-                    # print(input_exponent)
                 #load the vis_tags
                 out_dict['visocrs'] = torch.LongTensor(ocr_ids)
                 #normalize the ocr_bboxes
@@ -492,16 +443,7 @@ class ChartQAFineTuneDataset(Dataset):
             else:
                 ("invalid style is captured")
                 exit()
-                #print(ocr_bboxes[0])
                 
-                #tag_ids = []
-                # tag_bboxes = []
-                # for tag,tag_bbox in zip(ocr_tags, ocr_bboxes):
-                #     tag_id = self.tokenizer.encode(tag)
-                #     tag_bbox = 
-                #     tag_ids += tag_id
-                #input_ids = self.tokenizer.encode(f'vqa: {sent}', max_length=400, truncation=True)
-                #exit()
         elif self.args.table_flat:
             #load the table
             table_path = str(self.chartqa_dir.joinpath(f"{source}/tables/{img_id}.csv"))
@@ -583,7 +525,6 @@ class ChartQAFineTuneDataset(Dataset):
                     answer = str(self.ocr_outputs[idx])
                 else:
                     answer = str(self.outputs[idx])
-                #print(answer)
                 if self.args.scif_num:
                     answer = scifnum_sent(answer)
 
@@ -593,9 +534,8 @@ class ChartQAFineTuneDataset(Dataset):
 
 
                 
-                #print(answer)
+
                 score = 1
-                #print(answer)
                 out_dict['answer'] = answer
                 out_dict['score'] = score
                 out_dict['all_answers'] = [answer]
@@ -692,18 +632,6 @@ class ChartQAFineTuneDataset(Dataset):
                 ocr_mantissa = torch.zeros(B, V_W_L, dtype=torch.float)
                 ocr_exponent = torch.zeros(B, V_W_L, dtype=torch.float)
 
-            #Get rid of the extra padding
-            # S_W_L = max(entry['input_length'] + entry['visocrs_length'] for entry in batch)
-            # input_ids = torch.ones(B, S_W_L, dtype=torch.long) * self.tokenizer.pad_token_id
-
-            #get ocr_bbox
-            # ocr_bboxes = torch.zeros(B, S_W_L, 4, dtype=torch.float)
-            # ocr_bboxes = 
-        # else:
-        #     S_W_L = max(entry['input_length'] for entry in batch)
-        #     input_ids = torch.ones(B, S_W_L, dtype=torch.long) * self.tokenizer.pad_token_id
-
-        #     visocrs = 
         if 'target' in batch[0]:
             # targets = []
             targets = torch.zeros(B, len(batch[0]['target']), dtype=torch.float)
@@ -1042,27 +970,8 @@ class ChartQAEvaluator:
                     'answer': ans
                 })
             json.dump(result, f, indent=4, sort_keys=True)
-
-    def relaxed_measure_fix(self, gt_ans, resAns):
-        try:
-            gt_ans_num = float(gt_ans)
-            resAns_num = float(resAns)
-        except:
-            return str(gt_ans).strip() == str(resAns).strip()
-        if "." in resAns:
-            return (abs(resAns_num-gt_ans_num)+1e-12)/(gt_ans_num+1e-12) <= 0.05
-        else:
-            return str(gt_ans).strip() == str(resAns).strip()
-
-    # def relaxed_measure(self, gt_ans, resAns):
-    #     try:
-    #         gt_ans_num = float(gt_ans)
-    #         resAns_num = float(resAns)
-    #     except:
-    #         return str(gt_ans).strip() == str(resAns).strip()
-    #     return (abs(resAns_num-gt_ans_num)+1e-12)/(gt_ans_num+1e-12) <= 0.05
     
-    def relaxed_measure_scifnum_ocrcopy(self, gt_ans, resAns, gt_ocrs):
+    def relaxed_measure(self, gt_ans, resAns, gt_ocrs):
         #convert scifnum into the gt
         if exp_symbol in resAns:
             resAns = resAns.replace(exp_symbol, 'e')
@@ -1093,51 +1002,6 @@ class ChartQAEvaluator:
                     continue
 
         #At this point resAns should be returned to actual predicted answer
-        # print(gt_ans)
-        # print(resAns)
-        # print("\n")
-        try:
-            resAns_num = float(resAns)
-            gt_ans_num = float(gt_ans)
-        except:
-            return str(resAns).strip() == str(gt_ans).strip()
-        
-        return (abs(resAns_num-gt_ans_num)+1e-12)/(gt_ans_num +1e-12) <= 0.05
-
-    def relaxed_measure_scifnum(self, gt_ans, resAns, gt_ocrs):
-        #convert scifnum into the gt
-        if exp_symbol in resAns:
-            resAns = resAns.replace(exp_symbol, 'e')
-            #print(v)
-            #convert v into a string
-            new_resAns_list = []
-            for w in resAns.split(' '):
-                try:
-                    new_w = str(int(float(w)))
-                except:
-                    try:
-                        new_w = str(float(w))
-                    except:
-                        new_w = w
-                new_resAns_list.append(new_w)
-            resAns = ' '.join(new_resAns_list)
-                
-        #convert the ocr_id into its original text
-        if re.search(u"<ocr_extra_id_\d+>", resAns):
-            match = re.findall(u"<ocr_extra_id_\d+>", resAns)
-            for m in match:
-                matched_index = int(re.findall(u'\d+',m)[0])
-                try:
-                    matched_ocr = gt_ocrs[matched_index]
-                    resAns = resAns.replace(m, matched_ocr)
-                except:
-                    #list index out of range
-                    continue
-
-        #At this point resAns should be returned to actual predicted answer
-        # print(gt_ans)
-        # print(resAns)
-        # print("\n")
         try:
             resAns_num = float(resAns)
             gt_ans_num = float(gt_ans)
@@ -1169,68 +1033,20 @@ class ChartQAEvaluator:
             gt_ans = self.qidtoans[quesId]
             
             gt_ocrs = self.qidtoocrs[quesId]
-            # if str(gt_ans).strip() == str(resAns).strip():
-            #     accQA.append(1)
-            # else:
-            #     accQA.append(0)
 
-            #Process the resAns
-            #Added by Mingyang
-            #print(resAns)
             removed_special_tokens = ["<pad>", "</s>", "<unk>"]
             for t in removed_special_tokens:
                 resAns = resAns.replace(t, "")
             resAns=resAns.strip()
 
-            # print(resAns)
-            # print(gt_ans)
-            #if self.relaxed_measure_scifnum_ocrcopy(gt_ans, resAns, gt_ocrs):
 
-            if self.relaxed_measure_scifnum_ocrcopy(gt_ans, resAns, gt_ocrs):
+
+            if self.relaxed_measure(gt_ans, resAns, gt_ocrs):
                 accQA.append(1)
             else:
                 accQA.append(0)
                 # print("prediction: {}".format(resAns))
                 # print("ground_truth: {}".format(gt_ans))
-
-            
-
-            # if is_topk_optimal is None:
-            #     pass
-            # elif 'is_topk_optimal' in datum:
-            #     if datum['is_topk_optimal'] != is_topk_optimal:
-            #         continue
-
-            # resAns      = resAns.replace('\n', ' ')
-            # resAns      = resAns.replace('\t', ' ')
-            # resAns      = resAns.strip()
-            # resAns      = self.processPunctuation(resAns)
-            # resAns      = self.processDigitArticle(resAns)
-
-            # gtAcc  = []
-            # gtAnswers = [ans['answer'] for ans in gts[quesId]['answers']]
-            # if len(set(gtAnswers)) > 1:
-            #     for ansDic in gts[quesId]['answers']:
-            #         ansDic['answer'] = self.processPunctuation(ansDic['answer'])
-            # for gtAnsDatum in gts[quesId]['answers']:
-            #     otherGTAns = [item for item in gts[quesId]['answers'] if item!=gtAnsDatum]
-            #     matchingAns = [item for item in otherGTAns if item['answer']==resAns]
-            #     acc = min(1, float(len(matchingAns))/3)
-            #     gtAcc.append(acc)
-            # quesType    = gts[quesId]['question_type']
-            # ansType     = gts[quesId]['answer_type']
-            # avgGTAcc = float(sum(gtAcc))/len(gtAcc)
-            # accQA.append(avgGTAcc)
-            # if quesType not in accQuesType:
-            #     accQuesType[quesType] = []
-            # accQuesType[quesType].append(avgGTAcc)
-            # if ansType not in accAnsType:
-            #     accAnsType[ansType] = []
-            # accAnsType[ansType].append(avgGTAcc)
-
-            # self.setEvalQA(quesId, avgGTAcc)
-            # self.setEvalQuesType(quesId, quesType, avgGTAcc)
-            # self.setEvalAnsType(quesId, ansType, avgGTAcc)
 
 
         if len(accQA) == 0:

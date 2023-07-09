@@ -40,8 +40,8 @@ class VLT5Tokenizer(T5Tokenizer):
         pad_token="<pad>",
         extra_ids=100,
         vis_extra_ids=100,
-        ocr_extra_ids= 1, #Added by Mingyang
-        num_extra_ids= 1, #Added by Mingyang
+        ocr_extra_ids= 0, #Added by Mingyang
+        num_extra_ids= 0, #Added by Mingyang
         additional_special_tokens=None,
         **kwargs
     ):
@@ -294,8 +294,8 @@ class VLT5TokenizerFast(T5TokenizerFast):
         pad_token="<pad>",
         extra_ids=100,
         vis_extra_ids=100,
-        ocr_extra_ids=100, #changed by mingyang
-        num_extra_ids=1, #Default should be 1
+        ocr_extra_ids=0, #changed by mingyang
+        num_extra_ids=0, #Default should be 1
         additional_special_tokens=None,
         **kwargs
     ):

@@ -29,7 +29,7 @@ coco_dir = dataset_dir.joinpath('COCO')
 vg_dir = dataset_dir.joinpath('VG')
 coco_img_dir = coco_dir.joinpath('images/')
 
-chartsum_dir = Path("/dvmm-filer2/projects/mingyang/semafor/chart_pretrain_compress")
+chartsum_dir = Path("/dvmm-filer2/projects/mingyang/semafor/chartT5/pretrain")
 #chartsum_feature_dir = chartsum_dir.joinpath("features")
 exp_symbol = "[EXP]"
 
@@ -372,9 +372,7 @@ class ChartTablePretrainDataset(Dataset):
         #Need to modify to adapt to this change. Prepare a list of dictionaries.
         data = []
         for img_source in self.sources:
-            # data_info_path = chartsum_dir.joinpath(f'chart_pretrain_annotation_tables_gtocrs_dfp_ocrcopy_special.json')
-            data_info_path = chartsum_dir.joinpath(f'chart_pretrain_annotation_tables_gtocrs_dfp_ocrcopy.json')
-            #data_info_path = chartsum_dir.joinpath(f'chartsum_table_annotation.json')
+            data_info_path = chartsum_dir.joinpath(f'annotation.json')
             with open(data_info_path) as f:
                 _data = json.load(f)
                 if self.verbose:

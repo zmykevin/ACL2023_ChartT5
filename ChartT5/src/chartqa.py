@@ -304,25 +304,11 @@ class Trainer(TrainerBase):
         
         if self.verbose:
             evaluator = self.test_loader.evaluator
-            # score_dict = evaluator.evaluate(quesid2ans)
-
-            # evaluator.dump_result(quesid2ans)
-
             acc_dict_all = evaluator.evaluate_raw(quesid2ans)
-            # acc_dict_answerable = evaluator.evaluate_raw(quesid2ans, is_topk_optimal=True)
-            # acc_dict_unanswerable = evaluator.evaluate_raw(quesid2ans, is_topk_optimal=False)
 
             wandb_log_dict = {}
             wandb_log_dict['Test/overall'] = acc_dict_all['overall']
-            # wandb_log_dict['Test/topk_optimal'] = acc_dict_answerable['overall']
-            # wandb_log_dict['Test/topk_not_optimal'] = acc_dict_unanswerable['overall']
-
-            # for qtype, score in acc_dict_all['perQuestionType'].items():
-            #     wandb_log_dict[f'Test_Qtypes/{qtype}'] = score
-            # for atype, score in acc_dict_all['perAnswerType'].items():
-            #     if atype == 'yes/no':
-            #         atype = 'yes_no'
-            #     wandb_log_dict[f'Test_Atypes/{atype}'] = score
+            
 
             print(wandb_log_dict)
             # wandb.log(wandb_log_dict
@@ -333,12 +319,7 @@ class Trainer(TrainerBase):
             #Save the Best Prediction
             evaluator.dump_result(quesid2ans, '/'.join([args.output, 'best_predictions.json']))
 
-        # if self.args.submit:
-        #     dump_path = os.path.join(self.args.output, 'submit.json')
-        #     self.predict(self.submit_test_loader, dump_path)
 
-        #     wandb.save(dump_path, base_path=self.args.output)
-        #     wandb.log({'finished': True})
 
         if self.args.distributed:
             dist.barrier()
