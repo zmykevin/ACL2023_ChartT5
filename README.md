@@ -1,5 +1,9 @@
 # ChartT5
-The repository for chart-table pre-training, which aims to learn a robust representation of chart image in order to conduct various chart image related v+l downstream tasks. 
+[Enhanced Chart Understanding in Vision and Language Task via Cross-modal Pre-training on Plot Table Pairs](https://arxiv.org/abs/2305.18641)
+<br/>
+[Mingyang Zhou](https://scholar.google.com/citations?user=hIpaL2wAAAAJ&hl=en), [Yi R. Fung](https://yrf1.github.io/), [Long Chen](https://zjuchenlong.github.io/), [Christopher Thomas](https://people.cs.vt.edu/chris/), [Heng Ji](http://blender.cs.illinois.edu/hengji.html), [Shih-Fu Chang](https://www.ee.columbia.edu/~sfchang/)
+<br/>
+ChartT5 is a vision and language model for chart understanding via pre-training on plot-table pairs. This repository provides the code for pre-training and fine-tuning on the ChartQA Downstream tasks. 
 
 ## Env Set Up
 The main code is built on top of [VL-T5](https://github.com/j-min/VL-T5), follow there env set up instructions. 
@@ -130,53 +134,6 @@ Finally, under each **split** folder, you can create the corresponding annotatio
 
 Once your data is ready, you can simply modify the line that defines `chartqa_dir` in `chartqa_data.py` to be the path where you create your new dataset. Then you can run the fine-tuning command to fine-tune on this dataset. 
 
-### Chart Summarization
-For bookkeeping sake, you can find processed data files [here](https://uofi.box.com/s/bkox2p00hp3jgzw15hmpushy5lh8b09u), and trained chart summarization checkpoint [here](https://uofi.box.com/s/e9noxyzea7xeppp50pn1sx1lm4wg4xab).
 
-Some hard-coded parts to take care of before running Chart-to-text:
-- Download the original VLT5 repo's pretrained checkpoint, "Epoch30.pth", and place under `ChartT5/VL-T5/`
-- Place `Chart-to-text/` containing ocr and features etc, downloadable under link above, under `ChartT5/VL-T5/datasets/`
-```
-cd VLT5
 
-# Note that some of the evaluation metric requires
-# library call with dependency conflict. Hence, in current implementation,
-# eval is execulated as a subprocess call using a different conda environment.
-# - Set up the ChartSumm eval environment through `conda env create -f VL-T5/environment_eval.yml` first.
-# - Then, run command below using regular VL-T5 environment
-
-# For training:
-python VL-T5/src/ChartSummarization.py --epochs 30 --lr 5e-5 --dataset_name statista \
-                                       --src_folder ${PWD}/datasets/Chart-to-text
-python VL-T5/src/ChartSummarization.py --epochs 20 --lr 5e-5 --dataset_name pew \
-                                       --src_folder ${PWD}/datasets/pew  #Chart-to-text
-# For Testing:
-python VL-T5/src/ChartSummarization.py --epochs 0 --dataset_name statista --src_folder ${PWD}/datasets/Chart-to-text
-python VL-T5/src/ChartSummarization.py --epochs 0 --dataset_name pew --src_folder ${PWD}/datasets/Chart-to-text
-```
-
-To use the adapted feautures,
-you can also enable it via adding the flag:
-```
---visfeat_type "chart_element" \
-```
-
-To use the ocr position encoding, youo can enable it via adding the following flag:
-```
---ocr_position_encoding "ocr_bbox" \
---ocr_tags \
-```
-## Results
-
-Started training from a VLT5 model, with a general purpose pretrained T5 decoder.
-
-| VLT5      | BLEU | CS | BLEURT | CIDER | PPL
-| ----------- | ----------- | -- | --- |--- |--- 
-| Statista      |  31.4     | 35.9 | -0.345 | 0.90 | 14.8
-| Pew | 20.3 | 42.65 | -0.43 | 0.20 | 7.26
-
-| Best Baseline    | BLEU | BLEURT | CIDER | PPL
-| ----------- | ----------- | --- |--- |--- 
-| Statista      |  35.29     | 0.10 | 4.43 | 8.59
-| Pew   | 10.49 | -0.35 | 2.20| 10.11
 
