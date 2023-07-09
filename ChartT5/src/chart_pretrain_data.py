@@ -29,7 +29,7 @@ coco_dir = dataset_dir.joinpath('COCO')
 vg_dir = dataset_dir.joinpath('VG')
 coco_img_dir = coco_dir.joinpath('images/')
 
-chartsum_dir = Path("/dvmm-filer2/projects/mingyang/semafor/chartT5/pretrain")
+pretrain_datadir = Path("/dvmm-filer2/projects/mingyang/semafor/chartT5/pretrain")
 #chartsum_feature_dir = chartsum_dir.joinpath("features")
 exp_symbol = "[EXP]"
 
@@ -372,7 +372,7 @@ class ChartTablePretrainDataset(Dataset):
         #Need to modify to adapt to this change. Prepare a list of dictionaries.
         data = []
         for img_source in self.sources:
-            data_info_path = chartsum_dir.joinpath(f'annotation.json')
+            data_info_path = pretrain_datadir.joinpath(f'annotation.json')
             with open(data_info_path) as f:
                 _data = json.load(f)
                 if self.verbose:
@@ -459,16 +459,16 @@ class ChartTablePretrainDataset(Dataset):
             }
         else:
             self.source_to_h5 = {
-                'chartsum_train': chartsum_dir.joinpath('statista/features/train_chart_elements.h5'),
-                'chartsum_val': chartsum_dir.joinpath('statista/features/val_chart_elements.h5'),
-                'dvqa_train': chartsum_dir.joinpath('dvqa/features/train_chart_elements.h5'),
-                'dvqa_val': chartsum_dir.joinpath('dvqa/features/train_val_chart_elements.h5'),
-                'dvqa_test': chartsum_dir.joinpath('dvqa/features/val_chart_elements.h5'),
-                'figqa_train': chartsum_dir.joinpath('figureqa/features/train_chart_elements.h5'),
-                'plotqa_train': chartsum_dir.joinpath('plotqa/features/train_chart_elements.h5'),
-                'plotqa_val': chartsum_dir.joinpath('plotqa/features/val_chart_elements.h5'),
-                'scicap_train': chartsum_dir.joinpath('scicap/features/train_chart_elements.h5'),
-                'scicap_val': chartsum_dir.joinpath('scicap/features/val_chart_elements.h5'),
+                'chartsum_train': pretrain_datadir.joinpath('statista/features/train_chart_elements.h5'),
+                'chartsum_val': pretrain_datadir.joinpath('statista/features/val_chart_elements.h5'),
+                'dvqa_train': pretrain_datadir.joinpath('dvqa/features/train_chart_elements.h5'),
+                'dvqa_val': pretrain_datadir.joinpath('dvqa/features/train_val_chart_elements.h5'),
+                'dvqa_test': pretrain_datadir.joinpath('dvqa/features/val_chart_elements.h5'),
+                'figqa_train': pretrain_datadir.joinpath('figureqa/features/train_chart_elements.h5'),
+                'plotqa_train': pretrain_datadir.joinpath('plotqa/features/train_chart_elements.h5'),
+                'plotqa_val': pretrain_datadir.joinpath('plotqa/features/val_chart_elements.h5'),
+                'scicap_train': pretrain_datadir.joinpath('scicap/features/train_chart_elements.h5'),
+                'scicap_val': pretrain_datadir.joinpath('scicap/features/val_chart_elements.h5'),
             }
 
         self.n_boxes = args.n_boxes
@@ -586,9 +586,9 @@ class ChartTablePretrainDataset(Dataset):
                     table_folder_name = "tables"
 
                 if "figqa" in datum['text_source']:
-                    table_path = str(chartsum_dir.joinpath(f"{data_name}/train/{table_folder_name}/{img_id}.csv"))
+                    table_path = str(pretrain_datadir.joinpath(f"{data_name}/train/{table_folder_name}/{img_id}.csv"))
                 else:
-                    table_path = str(chartsum_dir.joinpath(f"{data_name}/{datum['split']}/{table_folder_name}/{img_id}.csv"))
+                    table_path = str(pretrain_datadir.joinpath(f"{data_name}/{datum['split']}/{table_folder_name}/{img_id}.csv"))
 
                 #table_path = str(chartsum_dir.joinpath(f'{dataset_name}/{datum_split}/tables/{img_id}.csv'))
                 table_data = pd.read_csv(table_path)
