@@ -6,20 +6,34 @@
 ChartT5 is a vision and language model for chart understanding via pre-training on plot-table pairs. This repository provides the code for pre-training and fine-tuning on the ChartQA Downstream tasks. 
 
 ## Setup
-Install condat to set up the environment for this code with the following command
+Install conda to set up the environment for this code with the following command.
 ```
 conda env create -f chartT5.yml
+#activate the virtual environment
+conda activate chartT5
 
 # Download T5/BART backbone checkpoint
 python download_backbones.py
 ```
 ## Download Data and Pre-trained Checkpoints
-The extracted features and data for pre-training and fine-tuning is downloadable via this link:
+The data for pre-training and fine-tuning is downloadable via this link:
 <br/>
-TODO: Add the link here once 
+[Preprocessed_Data](https://drive.google.com/file/d/1QZNz6_2fobrVtU4DEzrM0ZZghBlSLRSJ/view?usp=sharing)
 
-The pre-trained checkpoints can be download via this link:
+
+The pre-trained checkpoints can be downloaded via this link:
 <br/>
+[Pre-trained Checkpoint]()
+
+We are still working on preparing the extracted visual features for download. However, you can also extract visual features from the images with the following instructions.
+```
+conda env create -f feature_extractor.yml
+conda activate chart_feature_extractor
+
+cd feature_extraction
+#extract features for chartQA dataset
+python chartqa_proposal.py --data_root /path/to/your/chartvqa --split train/val/test
+```
 
 ## Pre-training
 After extract the data, change the `pretrain_datadir` in `ChartT5/src/chart_pretrain_data.py` to the /path/to/extracted_data/pretrain . 
