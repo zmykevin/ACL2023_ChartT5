@@ -58,7 +58,7 @@ Please cite our paper if you use our model in your works:
 ```
 @inproceedings{zhou2023chartt5,
   title     = {Enhanced Chart Understanding in Vision and Language Task via Cross-modal Pre-training on Plot Table Pairs},
-  author    = {Jaemin Cho and Jie Lei and Hao Tan and Mohit Bansal},
+  author    = {Mingyang Zhou, Yi R. Fung, Long Chen, Christopher Thomas, Heng Ji, Shih-Fu Chang},
   booktitle = {Findings of the Association for Computational Linguistics: ACL 2023},
   year      = {2023}
 }
